@@ -88,57 +88,55 @@ class CartPage extends StatelessWidget {
     );
   }
 
-  Widget _buildSummarySection(BuildContext context, CartLoaded state) {
-    // Calculate Tax just for display (12.5% of Total)
-    final tax = state.total * 0.125;
+  Widget _buildSummarySection(
+    BuildContext context,
+    CartLoaded state,
+  ) => Container(
+    padding: const EdgeInsets.all(24),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.05),
+          offset: const Offset(0, -4),
+          blurRadius: 10,
+        ),
+      ],
+    ),
+    child: Column(
+      children: [
+        // User Request: Prices are inclusive. Show Total, then Tax below it.
+        _buildRow('Total', state.total, isBold: true),
+        const SizedBox(height: 8),
+        _buildRow('Includes Tax (12.5%)', state.total * 0.125, isBold: false),
 
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            offset: const Offset(0, -4),
-            blurRadius: 10,
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          // User Request: Prices are inclusive. Show Total, then Tax below it.
-          _buildRow('Total', state.total, isBold: true),
-          const SizedBox(height: 8),
-          _buildRow('Includes Tax (12.5%)', tax, isBold: false),
-
-          const SizedBox(height: 24),
-          SizedBox(
-            width: double.infinity,
-            height: 50,
-            child: ElevatedButton(
-              onPressed: () {
-                // TODO: Navigate to Payment / Place Order
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Checkout not implemented yet')),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.black,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: const Text(
-                'Proceed to Checkout',
-                style: TextStyle(fontSize: 18),
+        const SizedBox(height: 24),
+        SizedBox(
+          width: double.infinity,
+          height: 50,
+          child: ElevatedButton(
+            onPressed: () {
+              // TODO: Navigate to Payment / Place Order
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Checkout not implemented yet')),
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.black,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
               ),
             ),
+            child: const Text(
+              'Proceed to Checkout',
+              style: TextStyle(fontSize: 18),
+            ),
           ),
-        ],
-      ),
-    );
-  }
+        ),
+      ],
+    ),
+  );
 
   Widget _buildRow(String label, double amount, {bool isBold = false}) {
     return Row(

@@ -4,8 +4,6 @@ import 'cart_event.dart';
 import 'cart_state.dart';
 
 class CartBloc extends Bloc<CartEvent, CartState> {
-  static const double _taxRate = 0.125; // 12.5% Tax
-
   CartBloc() : super(const CartLoaded()) {
     on<AddCartItem>(_onAddItem);
     on<RemoveCartItem>(_onRemoveItem);

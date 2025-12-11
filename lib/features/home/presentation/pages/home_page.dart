@@ -34,7 +34,6 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // AppBar removed to handle it in individual pages for better control (e.g. actions)
       body: PageView(
         controller: _pageController,
         onPageChanged: (index) {
