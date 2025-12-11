@@ -17,7 +17,20 @@ class DatabaseHelper {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, filePath);
 
-    return await openDatabase(path, version: 1, onCreate: _createDB);
+    return await openDatabase(
+      path,
+      version: 1,
+      onCreate: _createDB,
+      onConfigure: _onConfigure, // Optimization: Configure DB before creation
+    );
+  }
+
+  Future<void> _onConfigure(Database db) async {
+    // 1. Enforce Foreign Keys
+    await db.execute('PRAGMA foreign_keys = ON');
+    // 2. Enable WAL Mode (This returns a row, so execute() fails on some platforms. Use rawQuery)
+    await db.rawQuery('PRAGMA journal_mode = WAL');
+    await db.rawQuery('PRAGMA synchronous = NORMAL');
   }
 
   Future<void> _createDB(Database db, int version) async {
@@ -92,70 +105,54 @@ class DatabaseHelper {
       )
     ''');
 
+    // 3. Indexes for High-Performance Read/Lookup
+    await db.execute('CREATE INDEX idx_category_menu_id ON category(menu_id)');
+    await db.execute('CREATE INDEX idx_item_cat_id ON item(cat_id)');
+    await db.execute('CREATE INDEX idx_item_menu_id ON item(menu_id)');
+    await db.execute(
+      'CREATE INDEX idx_order_items_order_id ON order_items(order_id)',
+    );
+    await db.execute(
+      'CREATE INDEX idx_payments_order_id ON payments(order_id)',
+    );
+
     await _seedData(db);
   }
 
   Future<void> _seedData(Database db) async {
     final Batch batch = db.batch();
 
-    batch.rawInsert('INSERT INTO menu(id, name) VALUES(1, "Food")');
-    batch.rawInsert('INSERT INTO menu(id, name) VALUES(2, "Drinks")');
+    batch.execute('''
+      INSERT INTO menu (id, name) VALUES
+        (1, 'Food'),
+        (2, 'Drinks');
+    ''');
 
-    batch.rawInsert(
-      'INSERT INTO category(id, name, menu_id) VALUES(1, "Starters", 1)',
-    );
-    batch.rawInsert(
-      'INSERT INTO category(id, name, menu_id) VALUES(2, "Soft Drinks", 2)',
-    );
-    batch.rawInsert(
-      'INSERT INTO category(id, name, menu_id) VALUES(3, "Mains", 1)',
-    );
-    batch.rawInsert(
-      'INSERT INTO category(id, name, menu_id) VALUES(4, "Desserts", 2)',
-    );
-    batch.rawInsert(
-      'INSERT INTO category(id, name, menu_id) VALUES(5, "Hot Drinks", 2)',
-    );
+    batch.execute('''
+      INSERT INTO category(id, name, menu_id) VALUES
+        (1, "Starters", 1),
+        (2, "Soft Drinks", 2),
+        (3, "Mains", 1),
+        (4, "Desserts", 2),
+        (5, "Hot Drinks", 2);
+      ''');
 
-    batch.rawInsert(
-      'INSERT INTO item(id, name, cat_id, menu_id, price) VALUES(1, "Item1 (S)", 1, 1, 150)',
-    );
-    batch.rawInsert(
-      'INSERT INTO item(id, name, cat_id, menu_id, price) VALUES(2, "Item1 (L)", 1, 1, 250)',
-    );
-    batch.rawInsert(
-      'INSERT INTO item(id, name, cat_id, menu_id, price) VALUES(3, "Item2", 1, 1, 300)',
-    );
-    batch.rawInsert(
-      'INSERT INTO item(id, name, cat_id, menu_id, price) VALUES(4, "Item3", 2, 2, 250)',
-    );
-    batch.rawInsert(
-      'INSERT INTO item(id, name, cat_id, menu_id, price) VALUES(5, "Item4", 2, 2, 150)',
-    );
-    batch.rawInsert(
-      'INSERT INTO item(id, name, cat_id, menu_id, price) VALUES(6, "Item5", 2, 1, 100)',
-    );
-    batch.rawInsert(
-      'INSERT INTO item(id, name, cat_id, menu_id, price) VALUES(7, "Item6 (S)", 3, 1, 250)',
-    );
-    batch.rawInsert(
-      'INSERT INTO item(id, name, cat_id, menu_id, price) VALUES(8, "Item6 (L)", 3, 1, 360)',
-    );
-    batch.rawInsert(
-      'INSERT INTO item(id, name, cat_id, menu_id, price) VALUES(9, "Item7", 3, 1, 250)',
-    );
-    batch.rawInsert(
-      'INSERT INTO item(id, name, cat_id, menu_id, price) VALUES(10, "Item8 (S)", 4, 2, 375)',
-    );
-    batch.rawInsert(
-      'INSERT INTO item(id, name, cat_id, menu_id, price) VALUES(11, "Item8 (L)", 4, 2, 650)',
-    );
-    batch.rawInsert(
-      'INSERT INTO item(id, name, cat_id, menu_id, price) VALUES(12, "Item9", 4, 2, 150)',
-    );
-    batch.rawInsert(
-      'INSERT INTO item(id, name, cat_id, menu_id, price) VALUES(13, "Item10", 5, 2, 200)',
-    );
+    batch.execute('''
+      INSERT INTO item(id, name, cat_id, menu_id, price) VALUES
+        (1, "Item 1 (S)", 1, 1, 150),
+        (2, "Item 1 (L)", 1, 1, 250),
+        (3, "Item 2", 1, 1, 300),
+        (4, "Item 3", 2, 2, 250),
+        (5, "Item 4", 2, 2, 150),
+        (6, "Item 5", 2, 1, 100),
+        (7, "Item 6 (S)", 3, 1, 250),
+        (8, "Item 6 (L)", 3, 1, 360),
+        (9, "Item 7", 3, 1, 250),
+        (10, "Item 8 (S)", 4, 2, 375),
+        (11, "Item 8 (L)", 4, 2, 650),
+        (12, "Item 9", 4, 2, 150),
+        (13, "Item 10", 5, 2, 200);
+      ''');
 
     await batch.commit();
   }

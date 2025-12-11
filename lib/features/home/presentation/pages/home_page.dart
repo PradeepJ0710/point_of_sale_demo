@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pos/features/cart/presentation/pages/cart_page.dart';
 import 'package:pos/features/menu/presentation/pages/menu_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -26,14 +27,14 @@ class _HomePageState extends State<HomePage> {
 
   final List<Widget> _pages = const [
     MenuPage(),
-    Center(child: Text('Cart Page')),
+    CartPage(),
     Center(child: Text('Orders Page')),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('POS')),
+      // AppBar removed to handle it in individual pages for better control (e.g. actions)
       body: PageView(
         controller: _pageController,
         onPageChanged: (index) {
