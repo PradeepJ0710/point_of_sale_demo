@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:pos/features/cart/domain/entities/cart_item.dart';
+import 'package:pos/features/menu/domain/entities/item.dart';
+import 'package:pos/features/cart/presentation/bloc/cart_state.dart';
 import '../bloc/menu_bloc.dart';
 import '../bloc/menu_event.dart';
 import '../bloc/menu_state.dart';
@@ -43,6 +46,7 @@ class _MenuPageState extends State<MenuPage> {
   }
 
   Widget _buildMenuContent(BuildContext context, MenuLoaded state) {
+    print(Theme.of(context).textTheme.titleLarge?.color);
     // If no categories, show message
     if (state.categories.isEmpty) {
       return Column(
@@ -64,8 +68,11 @@ class _MenuPageState extends State<MenuPage> {
           TabBar(
             tabAlignment: TabAlignment.fill,
             isScrollable: false,
-            labelStyle: GoogleFonts.rubik(fontWeight: FontWeight.bold),
-            unselectedLabelStyle: GoogleFonts.rubik(),
+            labelStyle: GoogleFonts.rubik(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
+            unselectedLabelStyle: GoogleFonts.rubik(fontSize: 16),
             tabs: state.categories.map((c) => Tab(text: c.name)).toList(),
           ),
 
@@ -79,25 +86,49 @@ class _MenuPageState extends State<MenuPage> {
                     child: Text("No items in this category."),
                   );
                 }
-                return GridView.builder(
-                  padding: const EdgeInsets.all(16),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3, // 3 columns for Tablet/Large Phone
-                    childAspectRatio: 0.8,
-                    crossAxisSpacing: 16,
-                    mainAxisSpacing: 16,
-                  ),
-                  itemCount: items.length,
-                  itemBuilder: (context, index) {
-                    final item = items[index];
-                    return ItemTile(
-                      item: item,
-                      onTap: () {
-                        context.read<CartBloc>().add(AddCartItem(item));
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Added ${item.name} to Cart'),
-                            duration: const Duration(milliseconds: 500),
+                return BlocBuilder<CartBloc, CartState>(
+                  builder: (context, cartState) {
+                    return GridView.builder(
+                      padding: const EdgeInsets.all(16),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 3,
+                            childAspectRatio: 0.65,
+                            crossAxisSpacing: 8,
+                            mainAxisSpacing: 8,
+                          ),
+                      itemCount: items.length,
+                      itemBuilder: (context, index) {
+                        final item = items[index];
+
+                        // Find quantity in cart
+                        int quantity = 0;
+                        if (cartState is CartLoaded) {
+                          final cartItem = cartState.items.firstWhere(
+                            (ci) => ci.item.id == item.id,
+                            orElse: () => const CartItem(
+                              item: Item(
+                                id: -1,
+                                name: '',
+                                menuId: 0,
+                                categoryId: 0,
+                                price: 0.0,
+                              ),
+                              quantity: 0,
+                            ), // Dummy default
+                          );
+                          quantity = cartItem.quantity;
+                        }
+
+                        return ItemTile(
+                          item: item,
+                          quantity: quantity,
+                          onAdd: () =>
+                              context.read<CartBloc>().add(AddCartItem(item)),
+                          onIncrement: () =>
+                              context.read<CartBloc>().add(AddCartItem(item)),
+                          onDecrement: () => context.read<CartBloc>().add(
+                            RemoveCartItem(item),
                           ),
                         );
                       },

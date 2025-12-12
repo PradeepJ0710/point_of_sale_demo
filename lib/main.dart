@@ -6,9 +6,13 @@ import 'package:pos/features/menu/data/repositories/menu_repository_impl.dart';
 import 'package:pos/features/menu/domain/use_cases/get_categories.dart';
 import 'package:pos/features/menu/domain/use_cases/get_items.dart';
 import 'package:pos/features/menu/domain/use_cases/get_menus.dart';
+import 'package:pos/features/home/presentation/pages/home_page.dart';
 import 'package:pos/features/menu/presentation/bloc/menu_bloc.dart';
+import 'package:pos/features/orders/data/repositories/order_repository_impl.dart';
+import 'package:pos/features/orders/domain/use_cases/get_orders.dart';
+import 'package:pos/features/orders/domain/use_cases/place_order.dart';
+import 'package:pos/features/orders/presentation/bloc/order_bloc.dart';
 import 'package:pos/features/cart/presentation/bloc/cart_bloc.dart';
-import 'features/home/presentation/pages/home_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,8 +34,15 @@ class AppProvider extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // 1. Provide Repositories
-    return RepositoryProvider(
-      create: (context) => MenuRepositoryImpl(DatabaseHelper.instance),
+    return MultiRepositoryProvider(
+      providers: [
+        RepositoryProvider(
+          create: (context) => MenuRepositoryImpl(DatabaseHelper.instance),
+        ),
+        RepositoryProvider(
+          create: (context) => OrderRepositoryImpl(DatabaseHelper.instance),
+        ),
+      ],
       child: Builder(
         builder: (context) {
           // 2. Provide BLoCs
@@ -48,6 +59,14 @@ class AppProvider extends StatelessWidget {
                 ),
               ),
               BlocProvider<CartBloc>(create: (context) => CartBloc()),
+              BlocProvider<OrderBloc>(
+                create: (context) => OrderBloc(
+                  getOrders: GetOrders(context.read<OrderRepositoryImpl>()),
+                  placeOrder: PlaceOrderUseCase(
+                    context.read<OrderRepositoryImpl>(),
+                  ),
+                ),
+              ),
             ],
             child: child,
           );
@@ -65,10 +84,24 @@ class PosApp extends StatelessWidget {
     return MaterialApp(
       title: 'FIN Point-0f-Sale',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
         useMaterial3: true,
+        appBarTheme: AppBarTheme(
+          titleTextStyle: GoogleFonts.rubik(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF191D17),
+          ),
+        ),
         textTheme: GoogleFonts.rubikTextTheme(
           const TextTheme(bodyMedium: TextStyle(fontSize: 16.0)),
+        ),
+        bottomNavigationBarTheme: BottomNavigationBarThemeData(
+          selectedLabelStyle: GoogleFonts.rubik(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
+          unselectedLabelStyle: GoogleFonts.rubik(fontSize: 16),
         ),
       ),
       home: const HomePage(),
