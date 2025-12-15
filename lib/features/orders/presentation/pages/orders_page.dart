@@ -31,7 +31,12 @@ class _OrdersPageState extends State<OrdersPage> {
           if (state is OrderLoading) {
             return const Center(child: CircularProgressIndicator());
           } else if (state is OrderError) {
-            return const Center(child: Text('Something went wrong'));
+            return Center(
+              child: Text(
+                'Something went wrong',
+                style: GoogleFonts.rubik(fontSize: 18),
+              ),
+            );
           } else if (state is OrderLoaded) {
             if (state.orders.isEmpty) {
               return Center(
@@ -73,30 +78,104 @@ class _OrderTile extends StatelessWidget {
     }
 
     return ExpansionTile(
-      title: Text(
-        'Order #${order.id}',
-        style: GoogleFonts.rubik(fontWeight: FontWeight.bold),
+      title: Row(
+        children: [
+          Text(
+            'Order #${order.id}',
+            style: GoogleFonts.rubik(fontWeight: FontWeight.bold),
+          ),
+          Text(
+            ' - ${order.orderStatus}',
+            style: GoogleFonts.rubik(
+              color: order.orderStatus == 'Completed'
+                  ? Colors.green
+                  : Colors.orange,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
       ),
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(dateFormatter.format(parsedDate)),
-          Text(
-            '£${order.totalAmount.toStringAsFixed(2)} - ${order.orderStatus}',
-            style: GoogleFonts.rubik(
-              color: order.orderStatus == 'Completed'
-                  ? Colors.green
-                  : Colors.orange,
-              fontWeight: FontWeight.w500,
-            ),
+          const SizedBox(height: 4),
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                  color: order.paymentType == 'Card'
+                      ? Colors.blue.withOpacity(0.1)
+                      : order.paymentType == 'Cash'
+                      ? Colors.green.withOpacity(0.1)
+                      : Colors.grey.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: order.paymentType == 'Card'
+                        ? Colors.blue
+                        : order.paymentType == 'Cash'
+                        ? Colors.green
+                        : Colors.grey,
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      order.paymentType == 'Card'
+                          ? Icons.credit_card
+                          : order.paymentType == 'Cash'
+                          ? Icons.money
+                          : Icons.help_outline,
+                      size: 14,
+                      color: order.paymentType == 'Card'
+                          ? Colors.blue
+                          : order.paymentType == 'Cash'
+                          ? Colors.green
+                          : Colors.grey,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      order.paymentType,
+                      style: GoogleFonts.rubik(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: order.paymentType == 'Card'
+                            ? Colors.blue
+                            : order.paymentType == 'Cash'
+                            ? Colors.green
+                            : Colors.grey,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                '£${order.totalAmount.toStringAsFixed(2)}',
+                style: GoogleFonts.rubik(
+                  color: order.orderStatus == 'Completed'
+                      ? Colors.green
+                      : Colors.orange,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
           ),
         ],
       ),
       children: order.items.map((item) {
         return ListTile(
           dense: true,
-          title: Text('Item #${item.itemId}'),
-          trailing: Text('£${item.total.toStringAsFixed(2)}'),
+          title: Text(
+            item.itemName,
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+          trailing: Text(
+            '£${item.total.toStringAsFixed(2)}',
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
           leading: CircleAvatar(
             radius: 12,
             backgroundColor: Colors.grey.shade200,

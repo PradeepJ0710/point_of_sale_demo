@@ -7,6 +7,7 @@ class OrderModel extends Order {
     required super.orderId,
     required super.orderStatus,
     required super.totalAmount,
+    required super.paymentType,
     required super.items,
   });
 
@@ -26,6 +27,7 @@ class OrderModel extends Order {
       orderStatus: headerRow['order_status'] as String,
       // CONVERSION: Pence -> Pounds
       totalAmount: (headerRow['total_amount'] as int) / 100.0,
+      paymentType: headerRow['payment_type'] as String,
       items: items,
     );
   }
@@ -36,6 +38,7 @@ class OrderModel extends Order {
       'order_status': orderStatus,
       // CONVERSION: Pounds -> Pence
       'total_amount': (totalAmount * 100).round(),
+      'payment_type': paymentType,
     };
   }
 }

@@ -44,9 +44,22 @@ Future<void> verifyDataLayer() async {
       orderId: 0,
       orderStatus: 'Pending',
       totalAmount: 5.50,
+      paymentType: 'Card',
       items: const [
-        OrderItem(itemId: 1, price: 1.50, quantity: 2, total: 3.00),
-        OrderItem(itemId: 4, price: 2.50, quantity: 1, total: 2.50),
+        OrderItem(
+          itemId: 101,
+          itemName: 'Test Item 1',
+          price: 10.0,
+          quantity: 2,
+          total: 20.0,
+        ),
+        OrderItem(
+          itemId: 102,
+          itemName: 'Test Item 2',
+          price: 5.0,
+          quantity: 1,
+          total: 5.0,
+        ),
       ],
     );
 
@@ -73,6 +86,7 @@ Future<void> verifyDataLayer() async {
       orderId: 0,
       orderStatus: 'Pending',
       totalAmount: 10.00,
+      paymentType: 'Cash',
       items: const [],
     );
     final paymentOrderId = await orderRepo.createOrder(orderForPayment);
@@ -101,7 +115,7 @@ Future<void> verifyDataLayer() async {
     );
     _expect(updatedOrder.orderStatus, 'Completed', 'Order Status Update');
 
-    // D. Verify Payment Entry exists in DB (Requested by User)
+    // D. Verify Payment Entry exists in DB
     final db = await dbHelper.database;
     final paymentRows = await db.query(
       'payments',

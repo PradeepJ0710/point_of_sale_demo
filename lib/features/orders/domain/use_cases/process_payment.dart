@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
-import '../../../../core/use_cases/use_case.dart';
-import '../entities/payment.dart';
-import '../repositories/i_order_repository.dart';
+import 'package:pos/core/use_cases/use_case.dart';
+import 'package:pos/features/orders/domain/repositories/i_order_repository.dart';
+import 'package:pos/features/orders/domain/entities/payment.dart';
 
 class ProcessPayment implements UseCase<int, ProcessPaymentParams> {
   final IOrderRepository repository;
@@ -17,7 +17,7 @@ class ProcessPayment implements UseCase<int, ProcessPaymentParams> {
 class ProcessPaymentParams extends Equatable {
   final Payment payment;
 
-  const ProcessPaymentParams({required this.payment});
+  const ProcessPaymentParams(this.payment);
 
   @override
   List<Object> get props => [payment];

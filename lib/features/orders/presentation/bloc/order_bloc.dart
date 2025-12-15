@@ -2,6 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pos/core/use_cases/use_case.dart';
 import 'package:pos/features/orders/domain/use_cases/get_orders.dart';
 import 'package:pos/features/orders/domain/use_cases/place_order.dart';
+
 import 'order_event.dart';
 import 'order_state.dart';
 
@@ -30,16 +31,24 @@ class OrderBloc extends Bloc<OrderEvent, OrderState> {
   Future<void> _onPlaceOrder(PlaceOrder event, Emitter<OrderState> emit) async {
     emit(OrderLoading());
     try {
-      await placeOrder(PlaceOrderParams(order: event.order));
-      // Refresh list
-      final orders = await getOrders(NoParams());
-      orders.sort((a, b) => b.orderDate.compareTo(a.orderDate));
+      // 1. Atomic Create Order + Payment
+      await placeOrder(
+        PlaceOrderParams(order: event.order, payment: event.payment),
+      );
 
-      // Emit Success first to trigger listeners
+      // 2. Emit Success IMMEDIATELY to clear cart/notify user
       emit(OrderPlacedSuccess());
-      // Then emit the updated list
-      emit(OrderLoaded(orders));
+
+      // 3. Refresh list (separate try/catch so list-fail doesn't rollback success)
+      try {
+        final orders = await getOrders(NoParams());
+        orders.sort((a, b) => b.orderDate.compareTo(a.orderDate));
+        emit(OrderLoaded(orders));
+      } catch (e) {
+        // If refresh fails, we are still "Success" on placement.
+      }
     } catch (e) {
+      // If Placement fails, this IS a real error. Order not created.
       emit(OrderError(e.toString()));
     }
   }

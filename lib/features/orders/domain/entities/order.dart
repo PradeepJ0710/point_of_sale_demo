@@ -3,14 +3,10 @@ import 'package:equatable/equatable.dart';
 class Order extends Equatable {
   final int id;
   final String orderDate;
-  // In a real app, this might be a list of custom objects,
-  // but strictly following the user's "single data table" description:
-  // "ID, Order Date, Order ID, Item ID, Price, Qty, Order Status, Total"
-  // Since "Order" represents a single Header + List of Items, we model it as an aggregate root.
-
-  final int orderId; // Distinct from primary key ID if needed, or same.
+  final int orderId;
   final String orderStatus;
   final double totalAmount;
+  final String paymentType;
   final List<OrderItem> items;
 
   const Order({
@@ -19,6 +15,7 @@ class Order extends Equatable {
     required this.orderId,
     required this.orderStatus,
     required this.totalAmount,
+    required this.paymentType,
     required this.items,
   });
 
@@ -35,17 +32,19 @@ class Order extends Equatable {
 
 class OrderItem extends Equatable {
   final int itemId;
+  final String itemName;
   final double price;
   final int quantity;
   final double total;
 
   const OrderItem({
     required this.itemId,
+    required this.itemName,
     required this.price,
     required this.quantity,
     required this.total,
   });
 
   @override
-  List<Object?> get props => [itemId, price, quantity, total];
+  List<Object?> get props => [itemId, itemName, price, quantity, total];
 }
