@@ -2,7 +2,7 @@
 
 This application is an offline-capable Point of Sale (POS) system designed to streamline retail operations. It demonstrates a complete checkout flow—from browsing a menu to processing payments and reviewing order history—built with modern mobile application standards.
 
-## 📱 Technology Stack
+## Technology Stack
 
 The application is built using **Flutter**, leveraging **clean architecture** principles to ensure scalability, testability, and separation of concerns.
 
@@ -13,11 +13,11 @@ The application is built using **Flutter**, leveraging **clean architecture** pr
 
 ---
 
-## 💾 Database Design
+## Database Design
 
 The application uses a relational SQLite database to ensure data integrity and persistence. The schema is designed to handle orders and payments atomically.
 
-### **Tables & Relationships**
+### Tables & Relationships
 
 1.  **`menu`**
     *   **Purpose**: The highest level of organization (e.g., Food, Drinks).
@@ -53,7 +53,32 @@ The application uses a relational SQLite database to ensure data integrity and p
 
 ---
 
-## 📖 Feature Walkthrough: A Single Order - Start to Finish
+## Key Features
+
+### 1. Menu Module
+The landing page of the application providing an intuitive interface for staff to browse products.
+*   **Dynamic Loading**: Items are fetched efficiently from the local database.
+*   **Quick Add**: Staff can instantly add items to the active cart with a single tap.
+*   **Categorization**: Items are organized logically (e.g., Food, Drinks) for fast access.
+
+### 2. Cart & Checkout Module
+The core transaction engine handling calculations and payment processing.
+*   **Real-time Totals**: Automatically calculates subtotal, Tax (12.5%), and the final payable Total.
+*   **Flexible Payment Options**:
+    *   **Card Payment**: A mock "One-Step" checkout for card payment flow.
+    *   **Cash Payment**: A dedicated dialog to input "Amount Tendered". The system automatically validates sufficiency and calculates the exact "Change Due" before confirming the order.
+*   **Atomic Transactions**: The system ensures data integrity using database transactions. An order and its payment are saved together—if one fails, the entire transaction rolls back, preventing orders without payments.
+
+### 3. Orders History Module
+A comprehensive log of all past transactions.
+*   **Detailed Records**: View every order placed, including date, time, and status.
+*   **Payment Insight**: Displays a visual "Badge" indicating whether the order was paid via **Cash** or **Card**.
+*   **Item Breakdown**: Expand any order to see exactly which items were purchased, their individual prices, and quantities at the time of sale.
+*   **Smart Querying**: Uses advanced SQL joins to fetch item names and payment types efficiently in a single query.
+
+---
+
+## Feature Walkthrough: A Single Order - Start to Finish
 
 **Scenario**: A customer approaches the counter to order some items.
 
@@ -81,78 +106,53 @@ The application uses a relational SQLite database to ensure data integrity and p
 
 ---
 
-## 🚀 Key Features
-
-### 1. **Menu Module**
-The landing page of the application providing an intuitive interface for staff to browse products.
-*   **Dynamic Loading**: Items are fetched efficiently from the local database.
-*   **Quick Add**: Staff can instantly add items to the active cart with a single tap.
-*   **Categorization**: Items are organized logically (e.g., Food, Drinks) for fast access.
-
-### 2. **Cart & Checkout Module**
-The core transaction engine handling calculations and payment processing.
-*   **Real-time Totals**: Automatically calculates subtotal, Tax (12.5%), and the final payable Total.
-*   **Flexible Payment Options**:
-    *   **💳 Card Payment**: A mock "One-Step" checkout for card payment flow.
-    *   **💵 Cash Payment**: A dedicated dialog to input "Amount Tendered". The system automatically validates sufficiency and calculates the exact "Change Due" before confirming the order.
-*   **Atomic Transactions**: The system ensures data integrity using database transactions. An order and its payment are saved together—if one fails, the entire transaction rolls back, preventing orders without payments.
-
-### 3. **Orders History Module**
-A comprehensive log of all past transactions.
-*   **Detailed Records**: View every order placed, including date, time, and status.
-*   **Payment Insight**: Displays a visual "Badge" indicating whether the order was paid via **Cash** or **Card**.
-*   **Item Breakdown**: Expand any order to see exactly which items were purchased, their individual prices, and quantities at the time of sale.
-*   **Smart Querying**: Uses advanced SQL joins to fetch item names and payment types efficiently in a single query.
-
----
-
-## 💡 Potential Enhancements
+## Potential Enhancements
 
 Beyond the core functionality, these features would add significant value to the daily operations:
 
-### **1. Partial Payments (Split Tender)**
+### 1. Partial Payments (Split Tender)
 *   **Use Case**: A group of friends wants to split the bill, or a customer wants to pay £10 in Cash and the rest by Card.
 *   **Implementation**: Update the Checkout Dialog to accept multiple payment entries for a single `order_id` until the `total_paid` equals the `total_amount`.
 
-### **2. Tips & Gratuity**
+### 2. Tips & Gratuity
 *   **Use Case**: Rewarding staff for good service.
 *   **Implementation**: Add a "Add Tip" step before payment finalization.
     *   **Fixed Amount**: User types a fixed amount, e.g., `£2.00`.
     *   **Percentage**: User types a percentage, e.g., `10%`, `15%`, `20%`.
 
-### **3. Discounts & Coupons**
+### 3. Discounts & Coupons
 *   **Use Case**: Promotional campaigns or staff meals.
 *   **Implementation**:
     *   **Fixed Discount**: User enters a fixed amount, e.g., `£5.00`.
     *   **Percentage Discount**: User enters a percentage, e.g., `10%`, `15%`, `20%`.
     *   **Logic**: Calculate tax, taking discounts into account, as per local laws.
 
-### **4. Table Management (Dine-In)**
+### 4. Table Management (Dine-In)
 *   **Use Case**: Sit-down restaurants.
 *   **Implementation**: Assign orders to specific Tables (e.g., "Table 5"). Allow "Save Order" to put it on hold while guests dine, then "Retrieve" to pay later.
 
-### **5. Customer CRM & Loyalty**
+### 5. Customer CRM & Loyalty
 *   **Use Case**: Building repeat business.
 *   **Implementation**: Link orders to a specific Customer Profile to track purchase history and award Loyalty Points (e.g., "Buy 10 Coffees, Get 1 Free").
 
 ---
 
-## 🔮 Roadmap to Production
+## Roadmap to Production
 
 To transform this demo into a real-world enterprise POS solution, the following steps are recommended:
 
-### **1. Cloud Synchronization**
+### 1. Cloud Synchronization
 *   **Objective**: Enable multi-device support.
 *   **Plan**: Implement a background sync service to push local SQLite data to a central cloud server (e.g., PostgreSQL/Firebase).
 
-### **2. User Authentication & Roles**
+### 2. User Authentication & Roles
 *   **Objective**: Security and Audit.
 *   **Plan**: Add Login screens for Cashiers.
 
-### **3. Receipt Printing**
+### 3. Receipt Printing
 *   **Objective**: Compliance and Customer Service.
 *   **Plan**: Integrate with thermal printers to auto-print receipts upon successful checkout.
 
-### **4. Inventory Management**
+### 4. Inventory Management
 *   **Objective**: Stock control.
 *   **Plan**: To update latest `items` stock counts. Prevent item sales if stock is zero.
