@@ -1,7 +1,7 @@
 name: pos
-description: "POS demo application for FIN Infocom"
+description: "A Point-of-Sale demo application"
 publish_to: 'none'
-version: 0.0.1+1
+version: 1.0.0+1
 
 environment:
   sdk: ^3.10.1
