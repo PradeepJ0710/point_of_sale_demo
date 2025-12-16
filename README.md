@@ -1,6 +1,6 @@
 # Point of Sale (POS) Demo Application
 
-This application is an offline-capable Point of Sale (POS) system designed to streamline retail operations. It demonstrates a complete checkout flow—from browsing a menu to processing payments and reviewing order history—built with modern mobile application standards.
+This application is an offline-capable Point of Sale (POS) system designed to streamline retail operations. It demonstrates a complete checkout flow, from browsing a menu to processing payments and reviewing order history, built with modern mobile application standards.
 
 ## Technology Stack
 
